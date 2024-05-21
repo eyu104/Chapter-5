@@ -1,5 +1,7 @@
 package com.byted.chapter5;
 
+import android.content.Intent;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -15,7 +17,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.IOException;
+
 public class RegisterActivity extends AppCompatActivity {
+
+    private String TAG = "Alligator";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +52,25 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(RegisterActivity.this, "密码不相等", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // todo 做网络请求
+                // TODO 做网络请求
+
+                Call<UserResponse> call = apiService.postRegister(name, password, repassword);
+                call.enqueue(new Callback<UserResponse>() {
+                    @Override
+                    public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d(TAG, response.body().toString());
+                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                        } else {
+                            Log.e(TAG, "注册失败，错误码：" + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserResponse> call, Throwable t) {
+                        Log.e(TAG, "链接失败：" + t.toString());
+                    }
+                });
 
 
             }
